@@ -2,7 +2,7 @@
 export { InputParser } from './input.js';
 export { MathUtils } from './math.js';
 export { Grid, GridUtils, type Point, type Direction } from './grid.js';
-export { Graph, PriorityQueue, type Edge } from './graph.js';
+export { Graph, DirectedGraph, PriorityQueue, type Edge } from './graph.js';
 export { 
   DisjointSet, 
   Trie, 
