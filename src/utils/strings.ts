@@ -55,6 +55,33 @@ export class StringUtils {
   /**
    * Rolling hash for efficient substring comparisons
    */
+  /**
+   * Creates a new rolling hash instance optionally seeded with the provided string.
+   *
+   * Use this helper when you need to compute or update hash values efficiently
+   * over a moving window (e.g. for substring search, diffing, or duplicate detection)
+   * without recomputing the hash from scratch each time.
+   *
+   * If an initial string is supplied, the returned instance is pre-initialized
+   * with its hash state; otherwise it starts empty and can be fed characters or
+   * substrings incrementally.
+   *
+   * @param s Optional initial string to seed the rolling hash.
+   * @returns A new RollingHash instance initialized with the given string if provided.
+   *
+   * @example
+   * // Create an empty rolling hash
+   * const rh = Strings.createRollingHash();
+   * rh.push("abc");
+   *
+   * // Create a rolling hash seeded with a string
+   * const seeded = Strings.createRollingHash("initial");
+   * const currentValue = seeded.value();
+   *
+   * @remarks
+   * The specific rolling hash algorithm (e.g. base, modulus, collision handling)
+   * depends on the underlying RollingHash implementation.
+   */
   static createRollingHash(s?: string): RollingHash {
     return new RollingHash(s);
   }
