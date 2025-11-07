@@ -1,0 +1,110 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "🎄 Solve AoC (with input)",
+      "type": "shell",
+      "command": "${workspaceFolder}/.vscode/solve-aoc.sh",
+      "args": [
+        "${input:year}",
+        "${input:day}"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🔄 Re-run last AoC solution",
+      "type": "shell",
+      "command": "${workspaceFolder}/.vscode/rerun-last.sh",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🏗️ Build project",
+      "type": "npm",
+      "script": "build",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": [
+        "$tsc"
+      ]
+    },
+    {
+      "label": "🧪 Run tests",
+      "type": "npm",
+      "script": "test",
+      "group": "test",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "📊 Run benchmark",
+      "type": "npm",
+      "script": "benchmark",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🆕 Create new day",
+      "type": "npm",
+      "script": "new-day",
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "year",
+      "description": "Advent of Code Year (e.g., 2024)",
+      "default": "2024",
+      "type": "promptString"
+    },
+    {
+      "id": "day",
+      "description": "Day number (1-25)",
+      "default": "1",
+      "type": "promptString"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "🐛 Debug AoC Solution",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/runner.ts",
+      "args": ["${input:year}", "${input:day}"],
+      "runtimeArgs": ["--loader", "tsx/esm"],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "envFile": "${workspaceFolder}/.env"
+    },
+    {
+      "name": "🔄 Debug Last AoC Solution",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/src/runner.ts",
+      "args": ["2018", "7"],
+      "runtimeArgs": ["--loader", "tsx/esm"],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"],
+      "envFile": "${workspaceFolder}/.env"
+    }
+  ],
+  "inputs": [
+    {
+      "id": "year",
+      "description": "Advent of Code Year (e.g., 2024)",
+      "default": "2024",
+      "type": "promptString"
+    },
+    {
+      "id": "day",
+      "description": "Day number (1-25)",
+      "default": "1",
+      "type": "promptString"
+    }
+  ]
+}

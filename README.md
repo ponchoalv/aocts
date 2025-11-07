@@ -85,7 +85,29 @@ npm run benchmark <year> <day> # Benchmark specific day
 npm test                  # Run tests
 ```
 
-## 🏎️ Performance-Focused Utilities
+## � VS Code Integration
+
+This project includes VS Code tasks and shortcuts for a seamless development experience:
+
+### Quick Commands
+- **`Ctrl+Shift+R`** (`Cmd+Shift+R` on Mac): Solve AoC with input prompts
+- **`Ctrl+R`** (`Cmd+R` on Mac): Re-run last solution
+- **`Ctrl+Shift+B`** (`Cmd+Shift+B` on Mac): Build project
+- **`Ctrl+Shift+T`** (`Cmd+Shift+T` on Mac): Run tests
+
+### Available Tasks
+Access via Command Palette → "Tasks: Run Task":
+
+- **🎄 Solve AoC (with input)**: Prompts for year and day, runs solution
+- **🔄 Re-run last AoC solution**: Instantly re-runs your last solution
+- **🏗️ Build project**: Compiles TypeScript
+- **🧪 Run tests**: Runs Jest test suite
+- **📊 Run benchmark**: Performance analysis
+- **🆕 Create new day**: Scaffolds new solution template
+
+The tasks automatically store your last run parameters, so you can quickly iterate on solutions without re-entering the year and day each time.
+
+## �🏎️ Performance-Focused Utilities
 
 ### Input Parsing
 ```typescript
