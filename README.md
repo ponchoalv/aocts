@@ -170,18 +170,41 @@ Each solution extends the `BaseSolution` class:
 import { BaseSolution } from '../../templates/solution.js';
 
 export default class Day01Solution extends BaseSolution {
-  part1(input: string): string | number {
+  part1(input: string, isTest: boolean = false): string | number {
     const lines = this.lines(input);
+    
+    // Use different logic for test vs actual input
+    const multiplier = isTest ? 1 : 2;
     // Your solution here
-    return result;
+    return result * multiplier;
   }
 
-  part2(input: string): string | number {
+  part2(input: string, isTest: boolean = false): string | number {
     const lines = this.lines(input);
+    
+    // Use different parameters for test vs actual input
+    const threshold = isTest ? 10 : 1000;
     // Your solution here
     return result;
   }
 }
+```
+
+### Test vs Actual Input Handling
+
+The framework automatically detects when running with test input (`test.txt`) vs actual input (`input.txt`) and passes the `isTest` parameter accordingly:
+
+```typescript
+// Different algorithms based on input type
+if (isTest) {
+  return this.simpleApproach(input);
+} else {
+  return this.optimizedApproach(input);
+}
+
+// Different parameters
+const targetY = isTest ? 10 : 2000000;
+const maxCoord = isTest ? 20 : 4000000;
 ```
 
 ## 🎯 Performance Tips

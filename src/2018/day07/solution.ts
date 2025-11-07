@@ -17,21 +17,24 @@ export default class Day07Solution extends BaseSolution {
     return graph;
   }
 
-  part1(input: string): string | number {
+  part1(input: string, isTest: boolean = false): string | number {
     const graph = this.parseInput(input);
     const order = graph.topologicalSort();
     return order.join('');
   }
 
-  part2(input: string): string | number {
+  part2(input: string, isTest: boolean = false): string | number {
     const graph = this.parseInput(input);
     
     // Work time calculation: A=61, B=62, ..., Z=86 (60 + letter position)
+    // For test input, use smaller base time
+    const baseTime = isTest ? 0 : 60;
     const getWorkTime = (step: string): number => {
-      return 60 + (step.charCodeAt(0) - 'A'.charCodeAt(0) + 1);
+      return baseTime + (step.charCodeAt(0) - 'A'.charCodeAt(0) + 1);
     };
     
-    const result = graph.parallelTopologicalSort(5, getWorkTime);
+    const workerCount = isTest ? 2 : 5;
+    const result = graph.parallelTopologicalSort(workerCount, getWorkTime);
     return result.totalTime;
   }
 }

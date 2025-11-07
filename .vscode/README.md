@@ -48,9 +48,21 @@ You can run these tasks via:
 - **tasks.json**: Task definitions and input prompts
 - **keybindings.json**: Keyboard shortcuts for tasks
 - **settings.json**: Project-specific VS Code settings
+- **launch.json**: Debug configurations for VS Code
 - **solve-aoc.sh**: Script for running AoC solutions with parameter storage
 - **rerun-last.sh**: Script for re-running the last solution
+- **debug-aoc.sh**: Script for debugging solutions with inspector
 - **last-run.env**: Stores last executed year/day (gitignored)
+
+## Debugging
+
+Use the **Run and Debug** panel (Ctrl+Shift+D / Cmd+Shift+D) or:
+
+1. **🐛 Debug AoC Solution**: Debug with year/day prompts
+2. **🔄 Debug Last AoC Solution**: Debug the working 2018 day 7 solution
+3. **🔄 Debug Current Solution**: Debug 2022 day 15 specifically
+
+Set breakpoints in your solution files and the debugger will pause execution there.
 
 ## Quick Start
 

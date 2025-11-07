@@ -1,27 +1,51 @@
 {
   "version": "0.2.0",
   "configurations": [
+    
     {
       "name": "🐛 Debug AoC Solution",
       "type": "node",
       "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["tsx", "--inspect-brk"],
       "program": "${workspaceFolder}/src/runner.ts",
       "args": ["${input:year}", "${input:day}"],
-      "runtimeArgs": ["--loader", "tsx/esm"],
       "console": "integratedTerminal",
-      "skipFiles": ["<node_internals>/**"],
-      "envFile": "${workspaceFolder}/.env"
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "sourceMaps": true,
+      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
+      "outputCapture": "std",
+      "autoAttachChildProcesses": true
     },
     {
       "name": "🔄 Debug Last AoC Solution",
       "type": "node",
       "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["tsx", "--inspect-brk"],
       "program": "${workspaceFolder}/src/runner.ts",
       "args": ["2018", "7"],
-      "runtimeArgs": ["--loader", "tsx/esm"],
       "console": "integratedTerminal",
-      "skipFiles": ["<node_internals>/**"],
-      "envFile": "${workspaceFolder}/.env"
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "sourceMaps": true,
+      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
+      "outputCapture": "std",
+      "autoAttachChildProcesses": true
+    },
+    {
+      "name": "🔄 Debug Current Solution (2022/15)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["tsx", "--inspect-brk"],
+      "program": "${workspaceFolder}/src/runner.ts",
+      "args": ["2022", "15"],
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "sourceMaps": true,
+      "resolveSourceMapLocations": ["${workspaceFolder}/**", "!**/node_modules/**"],
+      "outputCapture": "std",
+      "autoAttachChildProcesses": true
     }
   ],
   "inputs": [

@@ -58,7 +58,7 @@ export default class Day06Solution extends BaseSolution {
     return totalDistance;
   }
 
-  part1(input: string): string | number {
+  part1(input: string, isTest: boolean = false): string | number {
     const coordinates = this.parseCoordinates(input);
     const bounds = this.getBounds(coordinates);
     
@@ -100,10 +100,10 @@ export default class Day06Solution extends BaseSolution {
     return maxArea;
   }
 
-  part2(input: string): string | number {
+  part2(input: string, isTest: boolean = false): string | number {
     const coordinates = this.parseCoordinates(input);
     const bounds = this.getBounds(coordinates);
-    const maxTotalDistance = 10000;
+    const maxTotalDistance = isTest ? 32 : 10000;
     
     let regionSize = 0;
     

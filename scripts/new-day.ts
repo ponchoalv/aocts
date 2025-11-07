@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync, existsSync } from 'fs';
+import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 /**
@@ -21,14 +21,14 @@ function createNewDay(year: number, day: number): void {
   const solutionTemplate = `import { BaseSolution } from '../../templates/solution.js';
 
 export default class Day${dayStr}Solution extends BaseSolution {
-  part1(input: string): string | number {
+  part1(input: string, isTest: boolean = false): string | number {
     const lines = this.lines(input);
     
     // TODO: Implement part 1
     return 0;
   }
 
-  part2(input: string): string | number {
+  part2(input: string, isTest: boolean = false): string | number {
     const lines = this.lines(input);
     
     // TODO: Implement part 2

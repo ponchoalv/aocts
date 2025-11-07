@@ -91,6 +91,25 @@
         "panel": "shared"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "🐛 Debug AoC Solution",
+      "type": "shell",
+      "command": "${workspaceFolder}/.vscode/debug-aoc.sh",
+      "args": [
+        "${input:year}",
+        "${input:day}"
+      ],
+      "group": "build",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "focus": false,
+        "panel": "shared",
+        "showReuseMessage": true,
+        "clear": false
+      },
+      "problemMatcher": []
     }
   ],
   "inputs": [

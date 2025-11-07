@@ -1,6 +1,6 @@
-import { readFileSync, existsSync } from 'fs';
-import { join } from 'path';
 import chalk from 'chalk';
+import { existsSync, readFileSync } from 'fs';
+import { join } from 'path';
 import type { Solution } from './templates/solution.js';
 
 interface SolutionModule {
@@ -89,7 +89,7 @@ export class SolutionRunner {
     
     // Part 1
     const start1 = performance.now();
-    const result1 = solution.part1(input);
+    const result1 = solution.part1(input, isTest);
     const end1 = performance.now();
     const time1 = end1 - start1;
 
@@ -97,7 +97,7 @@ export class SolutionRunner {
 
     // Part 2
     const start2 = performance.now();
-    const result2 = solution.part2(input);
+    const result2 = solution.part2(input, isTest);
     const end2 = performance.now();
     const time2 = end2 - start2;
 

@@ -3,13 +3,13 @@
  */
 
 export interface Solution {
-  part1(input: string): string | number;
-  part2(input: string): string | number;
+  part1(input: string, isTest?: boolean): string | number;
+  part2(input: string, isTest?: boolean): string | number;
 }
 
 export abstract class BaseSolution implements Solution {
-  abstract part1(input: string): string | number;
-  abstract part2(input: string): string | number;
+  abstract part1(input: string, isTest?: boolean): string | number;
+  abstract part2(input: string, isTest?: boolean): string | number;
 
   /**
    * Parse input into lines
