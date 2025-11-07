@@ -88,43 +88,34 @@ export default class Day15Solution extends BaseSolution {
     const coordinates = this.parseInput(input);
     const maxCoord = isTest ? 20 : 4000000;
     
-    const candidates = new Set<string>();
-    
-    for (const { sensorX, sensorY, distance } of coordinates) {
-      const boundary = distance + 1;
+    for (let y = 0; y <= maxCoord; y++) {
+      const ranges: Array<[number, number]> = [];
       
-      for (let i = 0; i <= boundary; i++) {
-        const points = [
-          [sensorX + i, sensorY + boundary - i],           // Top-right edge
-          [sensorX + boundary - i, sensorY - i],           // Bottom-right edge
-          [sensorX - i, sensorY + boundary - i],           // Bottom-left edge
-          [sensorX - boundary + i, sensorY + i],           // Top-left edge
-        ];
-        
-        for (const point of points) {
-          const x = point[0]!;
-          const y = point[1]!; 
-          if (x >= 0 && x <= maxCoord && y >= 0 && y <= maxCoord) {
-            candidates.add(`${x},${y}`);
+      for (const { sensorX, sensorY, distance } of coordinates) {
+        const yDistance = distance - Math.abs(sensorY - y);
+        if (yDistance >= 0) {
+          const left = Math.max(0, sensorX - yDistance);
+          const right = Math.min(maxCoord, sensorX + yDistance);
+          if (left <= right) {
+            ranges.push([left, right]);
           }
         }
       }
-    }
-    
-    for (const candidate of candidates) {
-      const [x, y] = candidate.split(',').map(Number);
       
-      let covered = false;
-      for (const { sensorX, sensorY, distance } of coordinates) {
-        const dist = Math.abs(x! - sensorX) + Math.abs(y! - sensorY);
-        if (dist <= distance) {
-          covered = true;
-          break;
+      if (ranges.length === 0) continue;
+      
+      ranges.sort((a, b) => a[0] - b[0]);
+      
+      let coverage = 0;
+      for (const [start, end] of ranges) {
+        if (start > coverage) {
+          return coverage * 4000000 + y;
         }
+        coverage = Math.max(coverage, end + 1);
       }
       
-      if (!covered) {
-        return x! * 4000000 + y!;
+      if (coverage <= maxCoord) {
+        return coverage * 4000000 + y;
       }
     }
     
