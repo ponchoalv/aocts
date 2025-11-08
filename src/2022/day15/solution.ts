@@ -12,8 +12,6 @@ export default class Day15Solution extends BaseSolution {
   private parseInput(input: string): Array<SensorAndBeaconRow> {
     const lines = this.lines(input);
     const coordinates: Array<SensorAndBeaconRow> = [];
-    let minX = Infinity, maxX = -Infinity;
-    let minY = Infinity, maxY = -Infinity;
 
     const regex = /Sensor at x=(-?\d+), y=(-?\d+): closest beacon is at x=(-?\d+), y=(-?\d+)/;
 
