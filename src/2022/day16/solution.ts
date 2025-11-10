@@ -58,7 +58,6 @@ export default class Day16Solution extends BaseSolution {
     for (let i = 0; i < numValves; i++) {
       const startValve = this.importantValves[i]!;
       
-      // BFS to find shortest path to all other valves
       const queue: Array<{ name: string; distance: number }> = [{ name: startValve.name, distance: 0 }];
       const visited = new Set<string>();
       
@@ -85,8 +84,7 @@ export default class Day16Solution extends BaseSolution {
     }
   }
 
-
-  // Optimized recursive function using bitmask and precomputed distances
+  // Original function for single agent (Part 1)
   private getMaxFlowRate(
     timeRemaining: number, 
     currentValve: string, 
@@ -137,6 +135,129 @@ export default class Day16Solution extends BaseSolution {
     return maxPressure;
   }
 
+  // Corrected dual agents implementation
+  private getMaxFlowRateWithElephant(
+    timeRemaining: number,
+    humanValve: string,
+    elephantValve: string,
+    openedMask: number
+  ): number {
+    if (timeRemaining <= 0) {
+      return 0;
+    }
+
+    const memoKey = `${timeRemaining}-${humanValve}-${elephantValve}-${openedMask}`;
+    
+    if (this.memo.has(memoKey)) {
+      return this.memo.get(memoKey)!;
+    }
+
+    let maxPressure = 0;
+
+    // Get all valid moves for both agents
+    const getValidMoves = (currentValve: string) => {
+      const moves: Array<{ valveIndex: number; valve: ImportantValve; distance: number }> = [];
+      const currentIndex = this.valveToIndex.get(currentValve) ?? 0;
+      
+      for (let i = 0; i < this.importantValves.length; i++) {
+        const valve = this.importantValves[i]!;
+        
+        // Skip if already opened or no flow rate
+        if ((openedMask & (1 << i)) !== 0 || valve.flowRate === 0) {
+          continue;
+        }
+
+        const distance = this.distances[currentIndex]![i] ?? 0;
+        
+        // Need enough time to travel and open (distance + 1)
+        if (distance + 1 < timeRemaining) {
+          moves.push({ valveIndex: i, valve, distance });
+        }
+      }
+      
+      return moves;
+    };
+
+    const humanMoves = getValidMoves(humanValve);
+    const elephantMoves = getValidMoves(elephantValve);
+    
+    // Case 1: Both agents move and open valves
+    for (const humanMove of humanMoves) {
+      for (const elephantMove of elephantMoves) {
+        // Can't open the same valve
+        if (humanMove.valveIndex === elephantMove.valveIndex) {
+          continue;
+        }
+
+        const humanOpenTime = humanMove.distance + 1;
+        const elephantOpenTime = elephantMove.distance + 1;
+        
+        // Both valves get opened, continue with remaining time after the slower one
+        const remainingTime = timeRemaining - Math.max(humanOpenTime, elephantOpenTime);
+        
+        if (remainingTime >= 0) {
+          const newOpenedMask = openedMask | (1 << humanMove.valveIndex) | (1 << elephantMove.valveIndex);
+          
+          // Pressure = flowRate * remaining time after opening
+          const humanPressure = humanMove.valve.flowRate * (timeRemaining - humanOpenTime);
+          const elephantPressure = elephantMove.valve.flowRate * (timeRemaining - elephantOpenTime);
+          
+          const futureScore = this.getMaxFlowRateWithElephant(
+            remainingTime,
+            humanMove.valve.name,
+            elephantMove.valve.name,
+            newOpenedMask
+          );
+
+          maxPressure = Math.max(maxPressure, humanPressure + elephantPressure + futureScore);
+        }
+      }
+    }
+
+    // Case 2: Only human moves
+    for (const humanMove of humanMoves) {
+      const humanOpenTime = humanMove.distance + 1;
+      const remainingTime = timeRemaining - humanOpenTime;
+      
+      if (remainingTime >= 0) {
+        const newOpenedMask = openedMask | (1 << humanMove.valveIndex);
+        const humanPressure = humanMove.valve.flowRate * (timeRemaining - humanOpenTime);
+        
+        const futureScore = this.getMaxFlowRateWithElephant(
+          remainingTime,
+          humanMove.valve.name,
+          elephantValve,
+          newOpenedMask
+        );
+
+        maxPressure = Math.max(maxPressure, humanPressure + futureScore);
+      }
+    }
+
+    // Case 3: Only elephant moves
+    for (const elephantMove of elephantMoves) {
+      const elephantOpenTime = elephantMove.distance + 1;
+      const remainingTime = timeRemaining - elephantOpenTime;
+      
+      if (remainingTime >= 0) {
+        const newOpenedMask = openedMask | (1 << elephantMove.valveIndex);
+        const elephantPressure = elephantMove.valve.flowRate * (timeRemaining - elephantOpenTime);
+        
+        const futureScore = this.getMaxFlowRateWithElephant(
+          remainingTime,
+          humanValve,
+          elephantMove.valve.name,
+          newOpenedMask
+        );
+
+        maxPressure = Math.max(maxPressure, elephantPressure + futureScore);
+      }
+    }
+
+    this.memo.set(memoKey, maxPressure);
+    return maxPressure;
+  }
+
   part1(input: string, isTest: boolean = false): string | number {
     this.parseInput(input);
     this.memo.clear(); 
@@ -152,8 +273,75 @@ export default class Day16Solution extends BaseSolution {
 
   part2(input: string, isTest: boolean = false): string | number {
     this.parseInput(input);
+    this.memo.clear();
 
-    // TODO: Implement part 2
-    return 0;
+    // Simplified approach: Use dynamic programming with state tracking
+    const elephantTime = 26;
+    
+    // Generate all possible single-agent solutions and combine the best non-overlapping ones
+    const solutions = new Map<number, number>(); // openedMask -> maxPressure
+    
+    this.generateAllSolutions(elephantTime, 'AA', 0, 0, solutions);
+    
+    let maxCombinedPressure = 0;
+    const solutionEntries = Array.from(solutions.entries());
+    
+    // Find best combination of non-overlapping solutions
+    for (let i = 0; i < solutionEntries.length; i++) {
+      for (let j = i + 1; j < solutionEntries.length; j++) {
+        const [mask1, pressure1] = solutionEntries[i]!;
+        const [mask2, pressure2] = solutionEntries[j]!;
+        
+        // Check if the solutions don't overlap (no common valves opened)
+        if ((mask1 & mask2) === 0) {
+          maxCombinedPressure = Math.max(maxCombinedPressure, pressure1 + pressure2);
+        }
+      }
+    }
+    
+    return maxCombinedPressure;
+  }
+
+  // Generate all possible solutions for a single agent
+  private generateAllSolutions(
+    timeRemaining: number,
+    currentValve: string,
+    openedMask: number,
+    currentPressure: number,
+    solutions: Map<number, number>
+  ): void {
+    // Record this solution
+    const existing = solutions.get(openedMask) ?? 0;
+    solutions.set(openedMask, Math.max(existing, currentPressure));
+    
+    if (timeRemaining <= 0) {
+      return;
+    }
+
+    // Try opening each unopened valve
+    for (let i = 0; i < this.importantValves.length; i++) {
+      const valve = this.importantValves[i]!;
+      
+      if ((openedMask & (1 << i)) !== 0 || valve.flowRate === 0) {
+        continue;
+      }
+
+      const currentIndex = this.valveToIndex.get(currentValve) ?? 0;
+      const travelTime = this.distances[currentIndex]![i] ?? 0;
+      const timeAfterMovingAndOpening = timeRemaining - travelTime - 1;
+
+      if (timeAfterMovingAndOpening > 0) {
+        const newOpenedMask = openedMask | (1 << i);
+        const pressureFromThisValve = valve.flowRate * timeAfterMovingAndOpening;
+        
+        this.generateAllSolutions(
+          timeAfterMovingAndOpening,
+          valve.name,
+          newOpenedMask,
+          currentPressure + pressureFromThisValve,
+          solutions
+        );
+      }
+    }
   }
 }
