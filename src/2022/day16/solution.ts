@@ -260,8 +260,8 @@ export default class Day16Solution extends BaseSolution {
 
   part1(input: string, isTest: boolean = false): string | number {
     this.parseInput(input);
-    this.memo.clear(); 
-
+    this.memo.clear();
+    
     const maxFlowRate = this.getMaxFlowRate(
       this.totalTime, 
       'AA', 
