@@ -17,12 +17,12 @@ export default class Day17Solution extends BaseSolution {
 
   private rocks: Rock[] = [
     {
-      shape: 0b0011110n,  // bits 4,3,2,1 set 
+      shape: 0b0011110n, // bits 4,3,2,1 set
       width: 4,
       height: 1,
     },
     {
-      shape: 0b0001000_0011100_0001000n,  // center column at bit 2
+      shape: 0b0001000_0011100_0001000n, // center column at bit 2
       width: 3,
       height: 3,
     },
@@ -56,7 +56,7 @@ export default class Day17Solution extends BaseSolution {
     rock: Rock,
     yPosition: number,
     tower: bigint,
-    direction: WindDirection
+    direction: WindDirection,
   ): Rock {
     let newRockNumber = 0n;
     let canMove = true;
@@ -65,11 +65,17 @@ export default class Day17Solution extends BaseSolution {
       const levelShift = BigInt(level) * BigInt(this.LEVEL_BITS);
       const currentLevel = (rock.shape >> levelShift) & BigInt(this.LEVEL_MASK);
 
-      if (direction === WindDirection.Left && (currentLevel & 0b01000000n) !== 0n) {
+      if (
+        direction === WindDirection.Left &&
+        (currentLevel & 0b01000000n) !== 0n
+      ) {
         return rock;
       }
-      
-      if (direction === WindDirection.Right && (currentLevel & 0b00000001n) !== 0n) {
+
+      if (
+        direction === WindDirection.Right &&
+        (currentLevel & 0b00000001n) !== 0n
+      ) {
         return rock;
       }
 
@@ -98,7 +104,7 @@ export default class Day17Solution extends BaseSolution {
   private tryMoveRockDown(
     rock: Rock,
     yPosition: number,
-    tower: bigint
+    tower: bigint,
   ): { newY: number; canMove: boolean } {
     const newY = yPosition - 1;
 
@@ -114,7 +120,7 @@ export default class Day17Solution extends BaseSolution {
 
   private checkCollisionInNumber(
     rockNumber: bigint,
-    towerNumber: bigint
+    towerNumber: bigint,
   ): boolean {
     return (rockNumber & towerNumber) !== 0n;
   }
@@ -143,7 +149,7 @@ export default class Day17Solution extends BaseSolution {
       while (true) {
         const windChar = windPattern[windIndex % windPattern.length];
         windIndex++;
-      
+
         if (windChar === "<") {
           const pushedRock = this.tryMoveRockLeft(currentRock, rockY, tower);
           if (pushedRock.shape !== currentRock.shape) {
@@ -180,7 +186,7 @@ export default class Day17Solution extends BaseSolution {
     for (let level = rock.height - 1; level >= 0; level--) {
       const levelShift = BigInt(level) * BigInt(this.LEVEL_BITS);
       const levelValue = Number(
-        (rock.shape >> levelShift) & BigInt(this.LEVEL_MASK)
+        (rock.shape >> levelShift) & BigInt(this.LEVEL_MASK),
       );
       const binary = levelValue.toString(2).padStart(7, "0");
       const visual = binary.replace(/1/g, "#").replace(/0/g, ".");
