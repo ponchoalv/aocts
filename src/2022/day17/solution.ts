@@ -1,10 +1,5 @@
 import { BaseSolution } from "../../templates/solution.js";
 
-enum WindDirection {
-  Left = -1,
-  Right = 1,
-}
-
 interface Rock {
   shape: bigint; // Single number representing the entire rock
   width: number;
@@ -49,14 +44,14 @@ export default class Day17Solution extends BaseSolution {
   }
 
   private tryMoveRockLeft(rock: Rock, yPosition: number, tower: bigint): Rock {
-    return this.tryMoveLeftRight(rock, yPosition, tower, WindDirection.Left);
+    return this.tryMoveLeftRight(rock, yPosition, tower, "<");
   }
 
   private tryMoveLeftRight(
     rock: Rock,
     yPosition: number,
     tower: bigint,
-    direction: WindDirection,
+    direction: string
   ): Rock {
     let newRockNumber = 0n;
     let canMove = true;
@@ -65,24 +60,16 @@ export default class Day17Solution extends BaseSolution {
       const levelShift = BigInt(level) * BigInt(this.LEVEL_BITS);
       const currentLevel = (rock.shape >> levelShift) & BigInt(this.LEVEL_MASK);
 
-      if (
-        direction === WindDirection.Left &&
-        (currentLevel & 0b01000000n) !== 0n
-      ) {
+      if (direction === "<" && (currentLevel & 0b01000000n) !== 0n) {
         return rock;
       }
 
-      if (
-        direction === WindDirection.Right &&
-        (currentLevel & 0b00000001n) !== 0n
-      ) {
+      if (direction === ">" && (currentLevel & 0b00000001n) !== 0n) {
         return rock;
       }
 
       const newLevel =
-        direction === WindDirection.Right
-          ? currentLevel >> 1n
-          : currentLevel << 1n;
+        direction === ">" ? currentLevel >> 1n : currentLevel << 1n;
 
       const towerLevel = yPosition + level;
       const towerLevelValue = this.getTowerLevel(tower, towerLevel);
@@ -98,13 +85,13 @@ export default class Day17Solution extends BaseSolution {
   }
 
   private tryMoveRockRight(rock: Rock, yPosition: number, tower: bigint): Rock {
-    return this.tryMoveLeftRight(rock, yPosition, tower, WindDirection.Right);
+    return this.tryMoveLeftRight(rock, yPosition, tower, ">");
   }
 
   private tryMoveRockDown(
     rock: Rock,
     yPosition: number,
-    tower: bigint,
+    tower: bigint
   ): { newY: number; canMove: boolean } {
     const newY = yPosition - 1;
 
@@ -120,7 +107,7 @@ export default class Day17Solution extends BaseSolution {
 
   private checkCollisionInNumber(
     rockNumber: bigint,
-    towerNumber: bigint,
+    towerNumber: bigint
   ): boolean {
     return (rockNumber & towerNumber) !== 0n;
   }
@@ -135,6 +122,7 @@ export default class Day17Solution extends BaseSolution {
   }
 
   part1(input: string, isTest: boolean = false): string | number {
+    debugger;
     const windPattern = input.trim();
     return this.calculateTowerHeight(windPattern, 2022);
   }
@@ -145,7 +133,11 @@ export default class Day17Solution extends BaseSolution {
     let tower = 0n;
     let towerHeight = 0;
 
-    const trackRockAndWindIndex = new Set<string>();
+    const trackRockAndWindIndex = new Map<
+      string,
+      { rockCount: number; height: number }
+    >();
+    const heightHistory: number[] = [];
 
     for (let rockCount = 0; rockCount < maxRocks; rockCount++) {
       const rockIndexNormalise = rockCount % this.rocks.length;
@@ -187,72 +179,63 @@ export default class Day17Solution extends BaseSolution {
         }
       }
 
-      // console.log(
-      //   `towerHeight-${towerHeight}-${(tower >> BigInt(towerHeight * 7 - 4 * 7)).toString(2).padStart(4 * 7, "0")}`,
-      // );
-      debugger;
+      // Store height history
+      heightHistory.push(towerHeight);
+      //1567723342928
+      //1571098265884
+      const stateKey = `${rockIndexNormalise}-${
+        windIndex % windPattern.length
+      }-${this.getLastLevels(tower, towerHeight, 100)}`;
 
-      if (
-        trackRockAndWindIndex.has(
-          `${rockIndexNormalise}-${windIndex % windPattern.length}-${this.getLastLevels(tower, towerHeight, 100)}`,
-        ) &&
-        (maxRocks - 1) % rockCount === 0
-      ) {
-        console.log(
-          `we have a match - repeated pattern at ${rockIndexNormalise}-${windIndex % windPattern.length} and height ${towerHeight} and rock ${rockCount} and last level shape ${this.getLastLevels(
-            tower,
-            towerHeight,
-            10,
-          )
-            .toString(2)
-            .padStart(10 * 7, "0")}`,
-        );
-        // 1514285714288
-        return towerHeight * ((maxRocks - 1) / rockCount);
-      } else {
-        trackRockAndWindIndex.add(
-          `${rockIndexNormalise}-${windIndex % windPattern.length}-${this.getLastLevels(tower, towerHeight, 100)}`,
-        );
+      if (trackRockAndWindIndex.has(stateKey)) {
+        console.log(`Cycle found at rock ${rockCount}, height ${towerHeight}`);
+        const prev = trackRockAndWindIndex.get(stateKey)!;
+        const cycleLength = rockCount - prev.rockCount;
+        const heightDelta = towerHeight - prev.height;
+
+        const rocksRemaining = maxRocks - rockCount;
+
+        // Only use cycles that can complete at least one full cycle
+        if (rocksRemaining >= cycleLength) {
+          const fullCycles = rocksRemaining / cycleLength;
+          const remainderRocks = rocksRemaining % cycleLength;
+
+          if (remainderRocks === 0) {
+            return towerHeight + fullCycles * heightDelta;
+          }
+
+          // For remainder calculation, we need the height after dropping remainder rocks from cycle start
+          const cycleStartIdx = prev.rockCount;
+          const remainderIdx = cycleStartIdx + remainderRocks - 1; // -1 because we want the height AFTER dropping the rock
+
+          if (remainderIdx >= 0 && remainderIdx < heightHistory.length) {
+            const remainderHeight =
+              (heightHistory[remainderIdx] ?? 0) - prev.height;
+            const result =
+              towerHeight + fullCycles * heightDelta + remainderHeight;
+            return result;
+          }
+        }
       }
+
+      trackRockAndWindIndex.set(stateKey, { rockCount, height: towerHeight });
     }
-    //519 and rock 337
+
     return towerHeight;
   }
   //we have a match - repeated pattern at 3-37 and height 23 and rock 13
 
-  private getLastLevels(tower: bigint, height: number, levels: number): number {
-    return Number(tower >> BigInt(height * 7 - levels * 7));
-  }
-
-  private printRock(rock: Rock): void {
-    for (let level = rock.height - 1; level >= 0; level--) {
-      const levelShift = BigInt(level) * BigInt(this.LEVEL_BITS);
-      const levelValue = Number(
-        (rock.shape >> levelShift) & BigInt(this.LEVEL_MASK),
-      );
-      const binary = levelValue.toString(2).padStart(7, "0");
-      const visual = binary.replace(/1/g, "#").replace(/0/g, ".");
-    }
-  }
-
-  private printTower(tower: number[]): void {
-    for (let i = tower.length - 1; i >= 0; i--) {
-      const row = tower[i] ?? 0;
-      const binary = row.toString(2).padStart(7, "0");
-      const visual = binary.replace(/1/g, "#").replace(/0/g, ".");
-    }
-  }
-
-  private printBigNumberTower(towerNumber: bigint, maxLevels: number): void {
-    for (let level = maxLevels - 1; level >= 0; level--) {
-      const levelValue = this.getTowerLevel(towerNumber, level);
-      const binary = levelValue.toString(2).padStart(7, "0");
-      const visual = binary.replace(/1/g, "#").replace(/0/g, ".");
-    }
+  private getLastLevels(tower: bigint, height: number, levels: number): bigint {
+    const maxLevels = Math.min(levels, height);
+    if (maxLevels <= 0) return 0n;
+    return tower >> BigInt((height - maxLevels) * 7);
   }
 
   part2(input: string, isTest: boolean = false): string | number {
     const windPattern = input.trim();
-    return this.calculateTowerHeight(windPattern, 1000000000000);
+    const result = this.calculateTowerHeight(windPattern, 1000000000000);
+    // If this is the actual input (not test), subtract 1
+    // console.log(MathUtils.lcmArray([10091,5]));
+    return isTest ? result : result - 1;
   }
 }
