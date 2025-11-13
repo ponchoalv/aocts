@@ -183,12 +183,10 @@ export default class Day17Solution extends BaseSolution {
       heightHistory.push(towerHeight);
       //1567723342928
       //1571098265884
-      const stateKey = `${rockIndexNormalise}-${
-        windIndex % windPattern.length
-      }-${this.getLastLevels(tower, towerHeight, 100)}`;
+      const stateKey = `${rockIndexNormalise}-${windIndex % windPattern.length
+        }-${this.getLastLevels(tower, towerHeight, 1)}`;
 
       if (trackRockAndWindIndex.has(stateKey)) {
-        console.log(`Cycle found at rock ${rockCount}, height ${towerHeight}`);
         const prev = trackRockAndWindIndex.get(stateKey)!;
         const cycleLength = rockCount - prev.rockCount;
         const heightDelta = towerHeight - prev.height;
@@ -196,34 +194,25 @@ export default class Day17Solution extends BaseSolution {
         const rocksRemaining = maxRocks - rockCount;
 
         // Only use cycles that can complete at least one full cycle
-        if (rocksRemaining >= cycleLength) {
+        if (rocksRemaining >= cycleLength && (rocksRemaining) % cycleLength === 0) {
           const fullCycles = rocksRemaining / cycleLength;
-          const remainderRocks = rocksRemaining % cycleLength;
-
-          if (remainderRocks === 0) {
-            return towerHeight + fullCycles * heightDelta;
-          }
-
-          // For remainder calculation, we need the height after dropping remainder rocks from cycle start
-          const cycleStartIdx = prev.rockCount;
-          const remainderIdx = cycleStartIdx + remainderRocks - 1; // -1 because we want the height AFTER dropping the rock
-
-          if (remainderIdx >= 0 && remainderIdx < heightHistory.length) {
-            const remainderHeight =
-              (heightHistory[remainderIdx] ?? 0) - prev.height;
-            const result =
-              towerHeight + fullCycles * heightDelta + remainderHeight;
-            return result;
-          }
+          return towerHeight + fullCycles * heightDelta;
+        
+          // 1514285714288
+          // 1514285714288
+          // 1514285714289
+          // 1567723342929
+          // 1567723342928
+          // 1567723342928
+          // 1567723342928
         }
       }
 
       trackRockAndWindIndex.set(stateKey, { rockCount, height: towerHeight });
     }
-
+    debugger;
     return towerHeight;
   }
-  //we have a match - repeated pattern at 3-37 and height 23 and rock 13
 
   private getLastLevels(tower: bigint, height: number, levels: number): bigint {
     const maxLevels = Math.min(levels, height);
