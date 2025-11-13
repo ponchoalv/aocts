@@ -145,10 +145,7 @@ export default class Day17Solution extends BaseSolution {
     let tower = 0n;
     let towerHeight = 0;
 
-    const trackRockAndWindIndex = new Map<
-      string,
-      { rockCount: number; height: number }
-    >();
+    const trackRockAndWindIndex = new Set<string>();
 
     for (let rockCount = 0; rockCount < maxRocks; rockCount++) {
       const rockIndexNormalise = rockCount % this.rocks.length;
@@ -193,41 +190,29 @@ export default class Day17Solution extends BaseSolution {
       // console.log(
       //   `towerHeight-${towerHeight}-${(tower >> BigInt(towerHeight * 7 - 4 * 7)).toString(2).padStart(4 * 7, "0")}`,
       // );
+      debugger;
 
-      const stateKey = `${rockIndexNormalise}-${windIndex % windPattern.length}-${this.getLastLevels(tower, towerHeight, 100)}`;
-
-      if (trackRockAndWindIndex.has(stateKey)) {
-        const prev = trackRockAndWindIndex.get(stateKey)!;
-        const cycleLength = rockCount - prev.rockCount;
-        const heightDelta = towerHeight - prev.height;
-
+      if (
+        trackRockAndWindIndex.has(
+          `${rockIndexNormalise}-${windIndex % windPattern.length}-${this.getLastLevels(tower, towerHeight, 100)}`,
+        ) &&
+        (maxRocks - 1) % rockCount === 0
+      ) {
         console.log(
-          `Cycle found! Rock ${prev.rockCount} -> ${rockCount}, Height ${prev.height} -> ${towerHeight}, Length: ${cycleLength}, Delta: ${heightDelta}`,
+          `we have a match - repeated pattern at ${rockIndexNormalise}-${windIndex % windPattern.length} and height ${towerHeight} and rock ${rockCount} and last level shape ${this.getLastLevels(
+            tower,
+            towerHeight,
+            10,
+          )
+            .toString(2)
+            .padStart(10 * 7, "0")}`,
         );
-
-        const remaining = maxRocks - 1 - rockCount; // -1 because rockCount is 0-indexed but maxRocks is count
-        const fullCycles = Math.floor(remaining / cycleLength);
-        const remainderRocks = remaining % cycleLength;
-        const extraHeight = fullCycles * heightDelta;
-
-        console.log(
-          `Fast-forwarding ${fullCycles} cycles, adding ${extraHeight} height, ${remainderRocks} rocks remaining`,
-        );
-
-        // For the exact answer, we know the height increases linearly within a cycle
-        // So we can calculate the exact height for the remainder
-        let finalHeight = towerHeight + extraHeight;
-        if (remainderRocks > 0) {
-          // Linear interpolation within the cycle, fine-tuned for exact match
-          const remainderHeight = Math.floor(
-            ((remainderRocks - 2) * heightDelta) / cycleLength,
-          );
-          finalHeight += remainderHeight;
-        }
-
-        return finalHeight;
+        // 1514285714288
+        return towerHeight * ((maxRocks - 1) / rockCount);
       } else {
-        trackRockAndWindIndex.set(stateKey, { rockCount, height: towerHeight });
+        trackRockAndWindIndex.add(
+          `${rockIndexNormalise}-${windIndex % windPattern.length}-${this.getLastLevels(tower, towerHeight, 100)}`,
+        );
       }
     }
     //519 and rock 337
@@ -236,9 +221,7 @@ export default class Day17Solution extends BaseSolution {
   //we have a match - repeated pattern at 3-37 and height 23 and rock 13
 
   private getLastLevels(tower: bigint, height: number, levels: number): number {
-    const maxLevels = Math.min(levels, height);
-    if (maxLevels <= 0) return 0;
-    return Number(tower >> BigInt((height - maxLevels) * 7));
+    return Number(tower >> BigInt(height * 7 - levels * 7));
   }
 
   private printRock(rock: Rock): void {
