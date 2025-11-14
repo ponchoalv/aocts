@@ -1,7 +1,10 @@
 import { BaseSolution } from "../../templates/solution.js";
 
 export default class Day18Solution extends BaseSolution {
-  private parseDroplets(input:string):{[[number,number,number]], Map<string, number> } {
+  private parseDroplets(input: string): {
+    droplets: [[number, number, number]];
+    track_droplets: Map<string, number>;
+  } {
     const lines = this.lines(input);
     let track_droplets: Map<string, number> = new Map<string, number>();
     let droplets: [number, number, number] = [];
@@ -16,7 +19,7 @@ export default class Day18Solution extends BaseSolution {
       track_droplets.set(`${x}-${y}-${z}`, 1);
     }
 
-    return {droplets, track_droplets}
+    return { droplets, track_droplets };
   }
   private adjacent(xs: [number, number, number]): [[number, number, number]] {
     const [x, y, z] = xs;
@@ -31,7 +34,7 @@ export default class Day18Solution extends BaseSolution {
   }
 
   part1(input: string, isTest: boolean = false): string | number {
-    const {droplets, track_droplets} = this.parseDroplets(input); 
+    const { droplets, track_droplets } = this.parseDroplets(input);
 
     return droplets
       .map((it) => {
