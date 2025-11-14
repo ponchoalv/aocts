@@ -126,12 +126,12 @@ export class MathUtils {
   static combinations(n: number, k: number): number {
     if (k > n) return 0;
     if (k === 0 || k === n) return 1;
-    
+
     k = Math.min(k, n - k); // Take advantage of symmetry
-    
+
     let result = 1;
     for (let i = 0; i < k; i++) {
-      result = result * (n - i) / (i + 1);
+      result = (result * (n - i)) / (i + 1);
     }
     return Math.round(result);
   }
@@ -139,14 +139,24 @@ export class MathUtils {
   /**
    * Manhattan distance between two points
    */
-  static manhattanDistance(x1: number, y1: number, x2: number, y2: number): number {
+  static manhattanDistance(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number
+  ): number {
     return Math.abs(x1 - x2) + Math.abs(y1 - y2);
   }
 
   /**
    * Euclidean distance between two points
    */
-  static euclideanDistance(x1: number, y1: number, x2: number, y2: number): number {
+  static euclideanDistance(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number
+  ): number {
     return Math.sqrt((x1 - x2) ** 2 + (y1 - y2) ** 2);
   }
 
