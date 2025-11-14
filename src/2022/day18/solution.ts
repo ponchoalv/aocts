@@ -21,8 +21,10 @@ export default class Day18Solution extends BaseSolution {
 
     return { droplets, track_droplets };
   }
+
   private adjacent(xs: [number, number, number]): [[number, number, number]] {
     const [x, y, z] = xs;
+
     return [
       [-1, 0, 0],
       [1, 0, 0],
