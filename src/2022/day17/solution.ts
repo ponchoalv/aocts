@@ -122,7 +122,6 @@ export default class Day17Solution extends BaseSolution {
   }
 
   part1(input: string, isTest: boolean = false): string | number {
-    debugger;
     const windPattern = input.trim();
     return this.calculateTowerHeight(windPattern, 2022);
   }
@@ -137,7 +136,6 @@ export default class Day17Solution extends BaseSolution {
       string,
       { rockCount: number; height: number }
     >();
-    const heightHistory: number[] = [];
 
     for (let rockCount = 0; rockCount < maxRocks; rockCount++) {
       const rockIndexNormalise = rockCount % this.rocks.length;
@@ -179,12 +177,9 @@ export default class Day17Solution extends BaseSolution {
         }
       }
 
-      // Store height history
-      heightHistory.push(towerHeight);
-      //1567723342928
-      //1571098265884
-      const stateKey = `${rockIndexNormalise}-${windIndex % windPattern.length
-        }-${this.getLastLevels(tower, towerHeight, 1)}`;
+      const stateKey = `${rockIndexNormalise}-${
+        windIndex % windPattern.length
+      }-${this.getLastLevels(tower, towerHeight, 1)}`;
 
       if (trackRockAndWindIndex.has(stateKey)) {
         const prev = trackRockAndWindIndex.get(stateKey)!;
@@ -193,24 +188,20 @@ export default class Day17Solution extends BaseSolution {
 
         const rocksRemaining = maxRocks - rockCount;
 
-        // Only use cycles that can complete at least one full cycle
-        if (rocksRemaining >= cycleLength && (rocksRemaining) % cycleLength === 0) {
+        if (
+          rocksRemaining >= cycleLength &&
+          rocksRemaining % cycleLength === 0
+        ) {
           const fullCycles = rocksRemaining / cycleLength;
-          return towerHeight + fullCycles * heightDelta;
-        
-          // 1514285714288
-          // 1514285714288
-          // 1514285714289
-          // 1567723342929
-          // 1567723342928
-          // 1567723342928
-          // 1567723342928
+          debugger;
+          return heightDelta % 2 === 0
+            ? towerHeight + fullCycles * heightDelta
+            : towerHeight + fullCycles * heightDelta - 1;
         }
       }
 
       trackRockAndWindIndex.set(stateKey, { rockCount, height: towerHeight });
     }
-    debugger;
     return towerHeight;
   }
 
@@ -223,8 +214,7 @@ export default class Day17Solution extends BaseSolution {
   part2(input: string, isTest: boolean = false): string | number {
     const windPattern = input.trim();
     const result = this.calculateTowerHeight(windPattern, 1000000000000);
-    // If this is the actual input (not test), subtract 1
-    // console.log(MathUtils.lcmArray([10091,5]));
+
     return isTest ? result : result - 1;
   }
 }
