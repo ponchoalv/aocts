@@ -46,9 +46,15 @@ export default class Day18Solution extends BaseSolution {
     biggerY: number,
     biggerZ: number
   ): [[number, number, number]] {
-    return this.adjacent(cube)
-      .filter(([x, y, z]) => x >= 0 && y >= 0 && z >= 0)
-      .filter(([x, y, z]) => x <= biggerX && y <= biggerY && z <= biggerZ);
+    return this.adjacent(cube).filter(
+      ([x, y, z]) =>
+        x >= 0 &&
+        y >= 0 &&
+        z >= 0 &&
+        x <= biggerX &&
+        y <= biggerY &&
+        z <= biggerZ
+    );
   }
 
   part1(input: string, isTest: boolean = false): string | number {
@@ -79,22 +85,22 @@ export default class Day18Solution extends BaseSolution {
       )
       .map((el) => el + 1); // increment + 1 for boundaries check
 
+    // set all the steam cubes starting from [0,0,0] and continue with adjacents within the limits 0 < cube face < bigger(x/y/z)
     let steamCells = [[0, 0, 0]];
+    // we need to track if we already mark it a steam
     const visitedSteamCells: Set<string> = new Set<string>();
+    // kind of bfs
     while (steamCells.length > 0) {
       steamCells = steamCells
-        .map(([x, y, z]) => {
-          trackDroplets.set(`${x}-${y}-${z}`, CubeType.Steam);
-          return [x, y, z];
-        })
         .flatMap((el) =>
           this.getAdjacentsWithinLimits(el, biggerX, biggerY, biggerZ).filter(
             ([x, y, z]) => {
               if (
-                !visitedSteamCells.has(`${x}-${y}-${z}`) &&
-                !trackDroplets.has(`${x}-${y}-${z}`)
+                !visitedSteamCells.has(`${x}-${y}-${z}`) && // not visited
+                !trackDroplets.has(`${x}-${y}-${z}`) // is an empty space - air
               ) {
-                visitedSteamCells.add(`${x}-${y}-${z}`);
+                trackDroplets.set(`${x}-${y}-${z}`, CubeType.Steam); // mark as steam
+                visitedSteamCells.add(`${x}-${y}-${z}`); // marke it as visit
                 return true;
               }
               return false;
