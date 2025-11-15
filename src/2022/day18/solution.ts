@@ -91,23 +91,21 @@ export default class Day18Solution extends BaseSolution {
     const visitedSteamCells: Set<string> = new Set<string>();
     // kind of bfs
     while (steamCells.length > 0) {
-      steamCells = steamCells
-        .flatMap((el) =>
-          this.getAdjacentsWithinLimits(el, biggerX, biggerY, biggerZ).filter(
-            ([x, y, z]) => {
-              if (
-                !visitedSteamCells.has(`${x}-${y}-${z}`) && // not visited
-                !trackDroplets.has(`${x}-${y}-${z}`) // is an empty space - air
-              ) {
-                trackDroplets.set(`${x}-${y}-${z}`, CubeType.Steam); // mark as steam
-                visitedSteamCells.add(`${x}-${y}-${z}`); // marke it as visit
-                return true;
-              }
-              return false;
+      steamCells = steamCells.flatMap((el) =>
+        this.getAdjacentsWithinLimits(el, biggerX, biggerY, biggerZ).filter(
+          ([x, y, z]) => {
+            if (
+              !visitedSteamCells.has(`${x}-${y}-${z}`) && // not visited
+              !trackDroplets.has(`${x}-${y}-${z}`) // is an empty space - air
+            ) {
+              trackDroplets.set(`${x}-${y}-${z}`, CubeType.Steam); // mark as steam
+              visitedSteamCells.add(`${x}-${y}-${z}`); // marke it as visit
+              return true;
             }
-          )
+            return false;
+          }
         )
-        .sort();
+      );
     }
 
     return droplets
