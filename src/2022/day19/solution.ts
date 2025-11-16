@@ -96,20 +96,20 @@ export default class Day19Solution extends BaseSolution {
     };
   }
 
-  private getMaxGeode(root: MineralCollector): number {
+  private getMaxGeode(root: MineralCollector, minutes: number = 24): number {
     this.maxGeodes = 0;
     this.memo.clear();
-    return this.dfs(root);
+    return this.dfs(root, minutes);
   }
 
-  private dfs(state: MineralCollector): number {
+  private dfs(state: MineralCollector, minutes: number = 24): number {
     // If time is up, update max
-    if (state.minutes >= 24) {
+    if (state.minutes >= minutes) {
       this.maxGeodes = Math.max(this.maxGeodes, state.geode);
       return this.maxGeodes;
     }
 
-    const minutesLeft = 24 - state.minutes;
+    const minutesLeft = minutes - state.minutes;
 
     // --- PRUNE: optimistic upper bound ---
     const optimistic =
@@ -119,7 +119,18 @@ export default class Day19Solution extends BaseSolution {
     if (optimistic <= this.maxGeodes) return 0;
 
     // --- MEMO KEY ---
-    const key = this.makeKey(state);
+    const key = [
+      state.minutes,
+      state.ore,
+      state.clay,
+      state.obsidian,
+      state.geode,
+      state.robotFactory.oreRobots,
+      state.robotFactory.clayRobots,
+      state.robotFactory.obsidianRobots,
+      state.robotFactory.geodeRobots,
+    ].join(",");
+
     const memoVal = this.memo.get(key);
     if (memoVal !== undefined && memoVal >= state.geode) return 0;
     this.memo.set(key, state.geode);
@@ -141,49 +152,23 @@ export default class Day19Solution extends BaseSolution {
 
     // Option 1: build each buildable robot
     for (const type of buildable) {
-      const next = this.cloneState(state);
+      const next = { ...state };
+      next.robotFactory = { ...state.robotFactory };
       this.buildRobot(type, next);
       this.collectMinerals(state, next);
       next.minutes++;
-      best = Math.max(best, this.dfs(next));
+      best = Math.max(best, this.dfs(next, minutes));
     }
 
     // Option 2: build nothing
     {
-      const next = this.cloneState(state);
-      this.collectMinerals(state, next);
-      next.minutes++;
-      best = Math.max(best, this.dfs(next));
+      this.collectMinerals(state, state);
+      state.minutes++;
+      best = Math.max(best, this.dfs(state, minutes));
     }
 
     this.maxGeodes = Math.max(this.maxGeodes, best);
     return best;
-  }
-
-  private cloneState(s: MineralCollector): MineralCollector {
-    return {
-      blueprint: s.blueprint,
-      robotFactory: { ...s.robotFactory },
-      ore: s.ore,
-      clay: s.clay,
-      obsidian: s.obsidian,
-      geode: s.geode,
-      minutes: s.minutes,
-    };
-  }
-
-  private makeKey(s: MineralCollector): string {
-    return [
-      s.minutes,
-      s.ore,
-      s.clay,
-      s.obsidian,
-      s.geode,
-      s.robotFactory.oreRobots,
-      s.robotFactory.clayRobots,
-      s.robotFactory.obsidianRobots,
-      s.robotFactory.geodeRobots,
-    ].join(",");
   }
 
   private robotUseful(type: RobotType, state: MineralCollector): boolean {
@@ -331,16 +316,29 @@ export default class Day19Solution extends BaseSolution {
           blueprint,
           robotFactory
         );
-        debugger;
         return this.getMaxGeode(mineralCollector) * blueprint.id;
       })
       .reduce((prev, current) => prev + current, 0);
   }
 
   part2(input: string, isTest: boolean = false): string | number {
-    const lines = this.lines(input);
+    const blueprints = this.parseBlueprints(input);
+    const robotFactory: RobotFactory = {
+      oreRobots: 1,
+      clayRobots: 0,
+      obsidianRobots: 0,
+      geodeRobots: 0,
+    };
 
-    // TODO: Implement part 2
-    return 0;
+    return blueprints
+      .slice(0, 3)
+      .map((blueprint) => {
+        const mineralCollector = this.initMineralCollector(
+          blueprint,
+          robotFactory
+        );
+        return this.getMaxGeode(mineralCollector, 32);
+      })
+      .reduce((prev, curr) => prev * curr, 1);
   }
 }
