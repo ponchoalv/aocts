@@ -41,6 +41,7 @@ enum RobotType {
 export default class Day19Solution extends BaseSolution {
   private maxGeodes = 0;
   private memo = new Map<string, number>();
+  private maxOreNeeded: number = 0;
 
   private parseBlueprints(input: string): BluePrint[] {
     const blueprints: BluePrint[] = new Array<BluePrint>();
@@ -99,10 +100,13 @@ export default class Day19Solution extends BaseSolution {
   private getMaxGeode(root: MineralCollector, minutes: number = 24): number {
     this.maxGeodes = 0;
     this.memo.clear();
-    return this.dfs(root, minutes);
+    return this.dfsGetMaxGeode(root, minutes);
   }
 
-  private dfs(state: MineralCollector, minutes: number = 24): number {
+  private dfsGetMaxGeode(
+    state: MineralCollector,
+    minutes: number = 24
+  ): number {
     // If time is up, update max
     if (state.minutes >= minutes) {
       this.maxGeodes = Math.max(this.maxGeodes, state.geode);
@@ -135,20 +139,18 @@ export default class Day19Solution extends BaseSolution {
     if (memoVal !== undefined && memoVal >= state.geode) return 0;
     this.memo.set(key, state.geode);
 
-    let best = 0;
-
     // --- Generate all build options ---
-    const buildable: RobotType[] = [];
-    [
+    const buildable: RobotType[] = [
       RobotType.GEODE_ROBOT,
       RobotType.OBSIDIAN_ROBOT,
       RobotType.CLAY_ROBOT,
       RobotType.ORE_ROBOT,
-    ].forEach((type) => {
-      if (this.couldCreateRobot(type, state) && this.robotUseful(type, state)) {
-        buildable.push(type);
-      }
-    });
+    ].filter(
+      (type) =>
+        this.couldCreateRobot(type, state) && this.robotUseful(type, state)
+    );
+
+    let best = 0;
 
     // Option 1: build each buildable robot
     for (const type of buildable) {
@@ -157,37 +159,38 @@ export default class Day19Solution extends BaseSolution {
       this.buildRobot(type, next);
       this.collectMinerals(state, next);
       next.minutes++;
-      best = Math.max(best, this.dfs(next, minutes));
+      best = Math.max(best, this.dfsGetMaxGeode(next, minutes));
     }
 
     // Option 2: build nothing
     {
       this.collectMinerals(state, state);
       state.minutes++;
-      best = Math.max(best, this.dfs(state, minutes));
+      best = Math.max(best, this.dfsGetMaxGeode(state, minutes));
     }
 
     this.maxGeodes = Math.max(this.maxGeodes, best);
-    return best;
+    return this.maxGeodes;
+  }
+
+  private setMaxOreNeeded(blueprint: BluePrint) {
+    this.maxOreNeeded = Math.max(
+      blueprint.oreRobotCost.ore!,
+      blueprint.clayRobotCost.ore!,
+      blueprint.obsidianRobotCost.ore!,
+      blueprint.geodeRobotCost.ore!
+    );
   }
 
   private robotUseful(type: RobotType, state: MineralCollector): boolean {
-    const bp = state.blueprint;
-
-    const maxOreNeeded = Math.max(
-      bp.oreRobotCost.ore!,
-      bp.clayRobotCost.ore!,
-      bp.obsidianRobotCost.ore!,
-      bp.geodeRobotCost.ore!
-    );
     if (type === RobotType.ORE_ROBOT) {
-      return state.robotFactory.oreRobots < maxOreNeeded;
+      return state.robotFactory.oreRobots < this.maxOreNeeded;
     }
-    const maxClayNeeded = bp.obsidianRobotCost.clay ?? 0;
+    const maxClayNeeded = state.blueprint.obsidianRobotCost.clay ?? 0;
     if (type === RobotType.CLAY_ROBOT) {
       return state.robotFactory.clayRobots < maxClayNeeded;
     }
-    const maxObsNeeded = bp.geodeRobotCost.obsidian ?? 0;
+    const maxObsNeeded = state.blueprint.geodeRobotCost.obsidian ?? 0;
     if (type === RobotType.OBSIDIAN_ROBOT) {
       return state.robotFactory.obsidianRobots < maxObsNeeded;
     }
@@ -316,6 +319,7 @@ export default class Day19Solution extends BaseSolution {
           blueprint,
           robotFactory
         );
+        this.setMaxOreNeeded(blueprint);
         return this.getMaxGeode(mineralCollector) * blueprint.id;
       })
       .reduce((prev, current) => prev + current, 0);
@@ -337,6 +341,7 @@ export default class Day19Solution extends BaseSolution {
           blueprint,
           robotFactory
         );
+        this.setMaxOreNeeded(blueprint);
         return this.getMaxGeode(mineralCollector, 32);
       })
       .reduce((prev, curr) => prev * curr, 1);
