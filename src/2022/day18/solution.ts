@@ -7,12 +7,12 @@ enum CubeType {
 
 export default class Day18Solution extends BaseSolution {
   private parseDroplets(input: string): {
-    droplets: [[number, number, number]];
+    droplets: [number, number, number][];
     trackDroplets: Map<string, number>;
   } {
     const lines = this.lines(input);
-    let trackDroplets: Map<string, number> = new Map<string, number>();
-    let droplets: [number, number, number] = [];
+    const trackDroplets: Map<string, number> = new Map<string, number>();
+    const droplets: [number, number, number][] = [];
 
     for (const line of lines) {
       const [x, y, z] = line
@@ -20,14 +20,14 @@ export default class Day18Solution extends BaseSolution {
         .map((x) => x.trim())
         .map((x) => parseInt(x) + 1);
 
-      droplets.push([x, y, z]);
+      droplets.push([x!, y!, z!]);
       trackDroplets.set(`${x}-${y}-${z}`, CubeType.Droplet);
     }
 
     return { droplets, trackDroplets };
   }
 
-  private adjacent(xs: [number, number, number]): [[number, number, number]] {
+  private adjacent(xs: [number, number, number]): [number, number, number][] {
     const [x, y, z] = xs;
 
     return [
@@ -37,7 +37,7 @@ export default class Day18Solution extends BaseSolution {
       [0, -1, 0],
       [0, 0, 1],
       [0, 0, -1],
-    ].map(([dx, dy, dz]) => [x + dx, y + dy, z + dz]);
+    ].map(([dx, dy, dz]) => [x + dx!, y + dy!, z + dz!]);
   }
 
   private getAdjacentsWithinLimits(
@@ -45,7 +45,7 @@ export default class Day18Solution extends BaseSolution {
     biggerX: number,
     biggerY: number,
     biggerZ: number
-  ): [[number, number, number]] {
+  ): [number, number, number][] {
     return this.adjacent(cube).filter(
       ([x, y, z]) =>
         x >= 0 &&
@@ -76,23 +76,23 @@ export default class Day18Solution extends BaseSolution {
     // get the bigger value in each column (this will be a referece for external facing walls)
     const [biggerX, biggerY, biggerZ] = droplets
       .reduce(
-        (prev, current) => {
+        (prev: [number, number, number], current: [number, number, number]) => {
           return [0, 1, 2].map((idx) =>
-            current[idx] > prev[idx] ? current[idx] : prev[idx]
-          );
+            current[idx]! > prev[idx]! ? current[idx]! : prev[idx]!
+          ) as [number, number, number];
         },
-        [0, 0, 0]
+        [0, 0, 0] as [number, number, number]
       )
       .map((el) => el + 1); // increment + 1 for boundaries check
 
     // set all the steam cubes starting from [0,0,0] and continue with adjacents within the limits 0 < cube face < bigger(x/y/z)
-    let steamCells = [[0, 0, 0]];
+    let steamCells: [number, number, number][] = [[0, 0, 0]];
     // we need to track if we already mark it a steam
     const visitedSteamCells: Set<string> = new Set<string>();
     // kind of bfs
     while (steamCells.length > 0) {
       steamCells = steamCells.flatMap((el) =>
-        this.getAdjacentsWithinLimits(el, biggerX, biggerY, biggerZ).filter(
+        this.getAdjacentsWithinLimits(el, biggerX!, biggerY!, biggerZ!).filter(
           ([x, y, z]) => {
             if (
               !visitedSteamCells.has(`${x}-${y}-${z}`) && // not visited
@@ -111,7 +111,12 @@ export default class Day18Solution extends BaseSolution {
     return droplets
       .map(
         (it) =>
-          this.getAdjacentsWithinLimits(it, biggerX, biggerY, biggerZ).filter(
+          this.getAdjacentsWithinLimits(
+            it,
+            biggerX!,
+            biggerY!,
+            biggerZ!
+          ).filter(
             ([x, y, z]) =>
               trackDroplets.get(`${x}-${y}-${z}`) === CubeType.Steam
           ).length

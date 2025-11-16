@@ -12,7 +12,12 @@
     "benchmark": "tsx scripts/benchmark.ts",
     "solve": "tsx src/runner.ts"
   },
-  "keywords": ["advent-of-code", "typescript", "algorithms", "performance"],
+  "keywords": [
+    "advent-of-code",
+    "typescript",
+    "algorithms",
+    "performance"
+  ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
