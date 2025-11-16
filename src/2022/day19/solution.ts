@@ -98,6 +98,7 @@ export default class Day19Solution extends BaseSolution {
 
   private getMaxGeode(root: MineralCollector): number {
     this.maxGeodes = 0;
+    this.memo.clear();
     return this.dfs(root);
   }
 
@@ -105,7 +106,7 @@ export default class Day19Solution extends BaseSolution {
     // If time is up, update max
     if (state.minutes >= 24) {
       this.maxGeodes = Math.max(this.maxGeodes, state.geode);
-      return state.geode;
+      return this.maxGeodes;
     }
 
     const minutesLeft = 24 - state.minutes;
@@ -127,19 +128,16 @@ export default class Day19Solution extends BaseSolution {
 
     // --- Generate all build options ---
     const buildable: RobotType[] = [];
-    for (const type of [
+    [
       RobotType.GEODE_ROBOT,
       RobotType.OBSIDIAN_ROBOT,
       RobotType.CLAY_ROBOT,
       RobotType.ORE_ROBOT,
-    ]) {
-      if (
-        this.shouldCreateRobot(type, state) &&
-        this.robotUseful(type, state)
-      ) {
+    ].forEach((type) => {
+      if (this.couldCreateRobot(type, state) && this.robotUseful(type, state)) {
         buildable.push(type);
       }
-    }
+    });
 
     // Option 1: build each buildable robot
     for (const type of buildable) {
@@ -211,7 +209,7 @@ export default class Day19Solution extends BaseSolution {
     return true; // geode robots always useful
   }
 
-  private shouldCreateRobot(
+  private couldCreateRobot(
     robotType: RobotType,
     mineralCollector: MineralCollector
   ): boolean {
