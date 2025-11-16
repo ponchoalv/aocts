@@ -1,9 +1,9 @@
 import { BaseSolution } from "../../templates/solution.js";
 
 interface RobotCost {
-  ore: number;
-  clay: number;
-  obsidian: number;
+  ore?: number;
+  clay?: number;
+  obsidian?: number;
 }
 
 interface BluePrint {
@@ -23,6 +23,7 @@ interface RobotFactory {
 
 interface MineralCollector {
   robotFactory: RobotFactory;
+  blueprint: BluePrint;
   ore: number;
   clay: number;
   obsidian: number;
@@ -36,45 +37,69 @@ export default class Day19Solution extends BaseSolution {
     const lines = this.lines(input);
 
     for (const line of lines) {
-      const blueprint: BluePrint = {};
+      const blueprint: any = {};
 
       const match = line.match(
         /^Blueprint (\d+): ([\w\s]+). ([\w\s]+). ([\w\s]+). ([\w\s]+)\.$/
       );
       if (match) {
         const [, id, oreCost, clayCost, obsidianCost, geodeCost] = match;
-        blueprint.id = id;
+        blueprint.id = parseInt(id!);
 
         [oreCost, clayCost, obsidianCost, geodeCost].forEach((it) => {
-          const costMatch = it.match(
+          const costMatch = it!.match(
             /Each (\w+) robot costs (\d+) (\w+)( and (\d+) (\w+))?/
           );
           if (costMatch) {
-            const value1: number = parseInt(costMatch[2]);
-            let cost: RobotCost = {};
+            const value1: number = parseInt(costMatch[2]!);
+            const cost: any = {};
             cost[`${costMatch[3]}`] = value1;
 
             if (costMatch[5]) {
               const value2 = parseInt(costMatch[5]);
               cost[`${costMatch[6]}`] = value2;
             }
-
-            blueprint[`${costMatch[1]}RobotCost`] = cost;
+            const robotCost: RobotCost = { ...cost };
+            blueprint[`${costMatch[1]}RobotCost`] = robotCost;
           }
         });
-
-        // console.log(id, oreCost, clayCost, obsidianCost, geodeCost);
-        // console.log(oreMatch);
-        // console.log(blueprint);
-        blueprints.push(blueprint);
+        const bluetPrintFormatted: BluePrint = { ...blueprint };
+        blueprints.push(bluetPrintFormatted);
       }
     }
 
     return blueprints;
   }
+
+  private initMineralCollector(
+    blueprint: BluePrint,
+    robotFactory: RobotFactory
+  ): MineralCollector {
+    return {
+      robotFactory,
+      blueprint,
+      ore: 0,
+      clay: 0,
+      obsidian: 0,
+      geode: 0,
+      minutes: 0,
+    };
+  }
+
   part1(input: string, isTest: boolean = false): string | number {
     const blueprints = this.parseBlueprints(input);
-    console.log(blueprints);
+    const robotFactory: RobotFactory = {
+      oreRobots: 1,
+      clayRobots: 0,
+      obsidianRobots: 0,
+      geodeRobots: 0,
+    };
+    const mineralCollector = this.initMineralCollector(
+      blueprints[0]!,
+      robotFactory
+    );
+
+    console.log(mineralCollector);
     return 0;
   }
 

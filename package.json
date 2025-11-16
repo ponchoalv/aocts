@@ -10,7 +10,7 @@
     "test": "jest",
     "new-day": "tsx scripts/new-day.ts",
     "benchmark": "tsx scripts/benchmark.ts",
-    "solve": "tsx src/runner.ts"
+    "solve": "tsc --noEmit && tsx src/runner.ts"
   },
   "keywords": [
     "advent-of-code",
