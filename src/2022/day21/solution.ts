@@ -21,7 +21,6 @@ export default class Day21Solution extends BaseSolution {
   >();
 
   private memo: Map<string, number> = new Map<string, number>();
-  private human: number = 0;
   private humanDepth: number = 0;
   private humanDepthFound: boolean = false;
   private EPSILON = 0.5; // Small step for derivative approximation (cannot be 1 because would make test.txt failed)
@@ -29,7 +28,6 @@ export default class Day21Solution extends BaseSolution {
   private parseMonkeyList(input: string) {
     const lines = this.lines(input);
     this.monkeyBussiness.clear();
-    this.human = 0;
 
     for (const line of lines) {
       const match = line.match(/^(\w+): (\w+)( ([\+-\/\*]+) (\w+))?$/);
@@ -100,7 +98,12 @@ export default class Day21Solution extends BaseSolution {
     }
   }
 
-  private getNumbersForRoot(monkeyName: string, depth: number): number {
+  // this function should trend to 0 if we found
+  private getDifferenceBetweenRootOperands(
+    monkeyName: string,
+    depth: number,
+    guess: number
+  ): number {
     const monkeyOperation: MonkeyOperation =
       this.monkeyBussiness.get(monkeyName)!;
 
@@ -112,56 +115,88 @@ export default class Day21Solution extends BaseSolution {
 
     if (monkeyName === "root") {
       return (
-        this.getNumbersForRoot(monkeyOperation.left! as string, depth + 1) -
-        this.getNumbersForRoot(monkeyOperation.right!, depth + 1)
+        this.getDifferenceBetweenRootOperands(
+          monkeyOperation.left! as string,
+          depth + 1,
+          guess
+        ) -
+        this.getDifferenceBetweenRootOperands(
+          monkeyOperation.right!,
+          depth + 1,
+          guess
+        )
       );
     }
 
     if (monkeyName === "humn") {
       this.humanDepth = depth;
       this.humanDepthFound = true;
-      return this.human;
+      return guess;
     }
 
     let result: number;
     switch (monkeyOperation.operation) {
       case Operation.PLUS:
         result =
-          this.getNumbersForRoot(monkeyOperation.left! as string, depth + 1) +
-          this.getNumbersForRoot(monkeyOperation.right!, depth + 1);
+          this.getDifferenceBetweenRootOperands(
+            monkeyOperation.left! as string,
+            depth + 1,
+            guess
+          ) +
+          this.getDifferenceBetweenRootOperands(
+            monkeyOperation.right!,
+            depth + 1,
+            guess
+          );
 
         this.memo.set(key, result);
         return result;
       case Operation.LESS:
         result =
-          this.getNumbersForRoot(monkeyOperation.left! as string, depth + 1) -
-          this.getNumbersForRoot(monkeyOperation.right!, depth + 1);
+          this.getDifferenceBetweenRootOperands(
+            monkeyOperation.left! as string,
+            depth + 1,
+            guess
+          ) -
+          this.getDifferenceBetweenRootOperands(
+            monkeyOperation.right!,
+            depth + 1,
+            guess
+          );
         this.memo.set(key, result);
         return result;
       case Operation.MULTIPLY:
         result =
-          this.getNumbersForRoot(monkeyOperation.left! as string, depth + 1) *
-          this.getNumbersForRoot(monkeyOperation.right!, depth + 1);
+          this.getDifferenceBetweenRootOperands(
+            monkeyOperation.left! as string,
+            depth + 1,
+            guess
+          ) *
+          this.getDifferenceBetweenRootOperands(
+            monkeyOperation.right!,
+            depth + 1,
+            guess
+          );
         this.memo.set(key, result);
         return result;
       case Operation.DIVISION:
         result =
-          this.getNumbersForRoot(monkeyOperation.left! as string, depth + 1) /
-          this.getNumbersForRoot(monkeyOperation.right!, depth + 1);
+          this.getDifferenceBetweenRootOperands(
+            monkeyOperation.left! as string,
+            depth + 1,
+            guess
+          ) /
+          this.getDifferenceBetweenRootOperands(
+            monkeyOperation.right!,
+            depth + 1,
+            guess
+          );
         this.memo.set(key, result);
         return result;
       default:
         this.memo.set(key, monkeyOperation.left as number);
         return monkeyOperation.left as number;
     }
-  }
-
-  part1(input: string, isTest: boolean = false): string | number {
-    // console.log(this.monkeyBussiness.size);
-    // console.log(this.monkeyBussiness);
-    this.parseMonkeyList(input);
-
-    return this.getNumberForMonkey("root");
   }
 
   private approximateDerivative(func: (num: number) => number, x: number) {
@@ -199,11 +234,16 @@ export default class Day21Solution extends BaseSolution {
     return x;
   }
 
+  part1(input: string, isTest: boolean = false): string | number {
+    this.parseMonkeyList(input);
+
+    return this.getNumberForMonkey("root");
+  }
+
   part2(input: string, isTest: boolean = false): string | number {
     this.parseMonkeyList(input);
     const targetFunc = (guess: number) => {
-      this.human = guess;
-      return this.getNumbersForRoot("root", 0);
+      return this.getDifferenceBetweenRootOperands("root", 0, guess);
     };
 
     return Math.round(this.newtonSolver(targetFunc, 200, 0.5, 100) ?? 0);
