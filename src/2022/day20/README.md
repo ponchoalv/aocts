@@ -5,14 +5,15 @@
 ```
 Initial arrangement:
 1, 2, -3, 3, -2, 0, 4
-
+              newIndex => si num > 0 idx+num % length => 1
+              all numbers from idx 1 - N => move to the left % 7
 1 moves between 2 and -3: new index (0 + 1) % 7 1%7
 2, 1, -3, 3, -2, 0, 4
-
-2 moves between -3 and 3: new index (0 + 2) % 7
+			  newIndex => si num > 0 idx+num % length =>
+2 moves between -3 and 3: new index (0 + 2) % 7 => 2
 1, -3, 2, 3, -2, 0, 4
-
--3 moves between -2 and 0: new index (-1 + 1 - 3) % 7
+			  newIndex => si num < 0 (idx + num + lenght - 1) % length
+-3 moves between -2 and 0: new index (1 -3 +(7-1)) % 7 => 4
 1, 2, 3, -2, -3, 0, 4
 
 3 moves between 0 and 4:
