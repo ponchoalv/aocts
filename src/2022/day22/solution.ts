@@ -6,6 +6,7 @@ interface DirectionToNumber {
   [key: string]: number;
 }
 
+// Facing is 0 for right (>), 1 for down (v), 2 for left (<), and 3 for up (^)
 const DIRECTION_TO_NUMBER: DirectionToNumber = {
   E: 0,
   S: 1,
@@ -55,19 +56,12 @@ export default class Day22Solution extends BaseSolution {
         console.log(currentDirection, instruction, currentPos);
         for (let i = 0; i < Number(instruction); i++) {
           // we move on current direction
-          currentPos.x += currentDirection.dx;
-          currentPos.x %= grid.width;
-          currentPos.y += currentDirection.dy;
-          currentPos.y %= grid.height;
-          this.wrapPos(currentPos, grid);
+          this.moveAndWrapPos(currentPos, grid, currentDirection);
           const currentValue = grid.get(currentPos.x, currentPos.y);
           if (currentValue === "#") {
             // wall, move back
-            currentPos.x -= currentDirection.dx;
-            currentPos.x %= grid.width;
-            currentPos.y -= currentDirection.dy;
-            currentPos.y %= grid.height;
-            this.wrapPos(currentPos, grid);
+            this.moveAndWrapPos(currentPos, grid, currentDirection, true);
+            break;
           } else if (!currentValue || currentValue === " ") {
             // empty or out of bounds, move with wrap %
             let tempPos = { ...currentPos };
@@ -77,22 +71,15 @@ export default class Day22Solution extends BaseSolution {
               !grid.get(tempPos.x, tempPos.y) ||
               grid.get(tempPos.x, tempPos.y) === " "
             ) {
-              tempPos.x += currentDirection.dx % grid.width;
-              tempPos.x %= grid.width;
-              tempPos.y += currentDirection.dy % grid.height;
-              tempPos.y %= grid.height;
-              this.wrapPos(tempPos, grid);
+              this.moveAndWrapPos(tempPos, grid, currentDirection);
             }
 
             // after looking for the next not empty tile we might land in a #
             // this means we need to go back from were we started - 1
             if (grid.get(tempPos.x, tempPos.y) === "#") {
-              currentPos.x -= 2 * currentDirection.dx;
-              currentPos.x %= grid.width;
-              currentPos.y -= 2 * currentDirection.dy;
-              currentPos.y %= grid.height;
-              this.wrapPos(currentPos, grid);
-              tempPos = { ...currentPos };
+              this.moveAndWrapPos(currentPos, grid, currentDirection, true);
+              currentPos.value = grid.get(currentPos.x, currentPos.y)!;
+              break;
             }
             currentPos = { ...tempPos };
           }
@@ -101,10 +88,13 @@ export default class Day22Solution extends BaseSolution {
       }
     }
 
-    console.log(currentPos);
+    console.log(currentPos, currentDirection);
 
     // 35368 is to high
+    // 43472 is to high
     // 43472
+    // 18376 is to high
+    // 11212 - don't know
     return (
       1000 * (currentPos.y + 1) +
       4 * (currentPos.x + 1) +
@@ -112,22 +102,32 @@ export default class Day22Solution extends BaseSolution {
     );
   }
 
-  private wrapPos(
+  private moveAndWrapPos(
     currentPos: { x: number; y: number; value: string },
-    grid: Grid<string>
+    grid: Grid<string>,
+    direction: Direction,
+    rewind: boolean = false
   ) {
+    if (rewind) {
+      currentPos.x -= direction.dx;
+      currentPos.x %= grid.width;
+      currentPos.y -= direction.dy;
+      currentPos.y %= grid.height;
+    } else {
+      currentPos.x += direction.dx;
+      currentPos.x %= grid.width;
+      currentPos.y += direction.dy;
+      currentPos.y %= grid.height;
+    }
+
     if (currentPos.x < 0) {
-      // console.log("before wrap", currentPos);
-      currentPos.x += grid.width - 1;
+      currentPos.x += grid.width;
       currentPos.value = grid.get(currentPos.x, currentPos.y)!;
-      // console.log("after wrap", currentPos);
     }
 
     if (currentPos.y < 0) {
-      // console.log("before wrap", currentPos);
-      currentPos.y += grid.height - 1;
+      currentPos.y += grid.height;
       currentPos.value = grid.get(currentPos.x, currentPos.y)!;
-      // console.log("after wrap", currentPos);
     }
   }
 
