@@ -90,11 +90,7 @@ export default class Day22Solution extends BaseSolution {
 
     console.log(currentPos, currentDirection);
 
-    // 35368 is to high
-    // 43472 is to high
-    // 43472
-    // 18376 is to high
-    // 11212 - don't know
+    // 1484 is the correct answer for our input
     return (
       1000 * (currentPos.y + 1) +
       4 * (currentPos.x + 1) +
