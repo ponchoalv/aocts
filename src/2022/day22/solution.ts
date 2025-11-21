@@ -179,9 +179,129 @@ export default class Day22Solution extends BaseSolution {
     const faces: Set<string> = new Set<string>();
     const N = isTest ? 4 : 50;
 
-    let MovementOnWrapMappings;
-
+    let MovementOnWrapMappings: MovementOnWrapMap;
     if (isTest) {
+      // test faces Set(6) { '2-0', '0-1', '1-1', '2-1', '2-2', '3-2' }
+      MovementOnWrapMappings = {
+        "2-0": {
+          // go to 3-2 diection south (clockwise)
+          east: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("east"),
+          // normal wrap
+          south: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("south"),
+          // go to 0-1 direction south (counter clockwise)
+          west: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("west"),
+          // continue normal wrap
+          north: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("north"),
+        },
+        "0-1": {
+          // normal wrap
+          east: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("east"),
+          // 2-2 direction up
+          south: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("south"),
+          // 3-2 directio up
+          west: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("west"),
+          // 2-0 down
+          north: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("north"),
+        },
+        "1-1": {
+          east: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("east"),
+          south: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("south"),
+          west: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("west"),
+          north: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("north"),
+        },
+        "2-1": {
+          east: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("east"),
+          south: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("south"),
+          west: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("west"),
+          north: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("north"),
+        },
+        "2-2": {
+          east: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("east"),
+          south: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("south"),
+          west: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("west"),
+          north: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("north"),
+        },
+        "3-2": {
+          east: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("east"),
+          south: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("south"),
+          west: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("west"),
+          north: (
+            position: { x: number; y: number; value: string },
+            direction: Direction
+          ) => console.log("north"),
+        },
+      };
+    } else {
+      // real input faces Set(6) { '1-0', '2-0', '1-1', '0-2', '1-2', '0-3' }
     }
 
     // console.log(grid);
