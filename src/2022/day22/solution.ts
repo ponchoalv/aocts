@@ -6,6 +6,31 @@ interface DirectionToNumber {
   [key: string]: number;
 }
 
+// what would be need to do for a particular face if it goes out of bounds
+interface MovementOnWrap {
+  east: (
+    position: { x: number; y: number; value: string },
+    direction: Direction
+  ) => void;
+  south: (
+    position: { x: number; y: number; value: string },
+    direction: Direction
+  ) => void;
+  west: (
+    position: { x: number; y: number; value: string },
+    direction: Direction
+  ) => void;
+  north: (
+    position: { x: number; y: number; value: string },
+    direction: Direction
+  ) => void;
+}
+
+// what are the for wraps based on map face
+interface MovementOnWrapMap {
+  [key: string]: MovementOnWrap;
+}
+
 // Facing is 0 for right (>), 1 for down (v), 2 for left (<), and 3 for up (^)
 const DIRECTION_TO_NUMBER: DirectionToNumber = {
   E: 0,
@@ -53,7 +78,7 @@ export default class Day22Solution extends BaseSolution {
         currentDirection = GridUtils.rotateCounterClockwise(currentDirection);
       } else {
         // is a number
-        console.log(currentDirection, instruction, currentPos);
+        // console.log(currentDirection, instruction, currentPos);
         for (let i = 0; i < Number(instruction); i++) {
           // we move on current direction
           this.moveAndWrapPos(currentPos, grid, currentDirection);
@@ -128,9 +153,49 @@ export default class Day22Solution extends BaseSolution {
   }
 
   part2(input: string, isTest: boolean = false): string | number {
-    const lines = this.lines(input);
+    const [inputGrid, instructionsInput] = input.split("\n\n");
+    const instructions: (number | string)[] = [];
 
-    // TODO: Implement part 2
+    const match = instructionsInput!.match(/(\d+)|[RL]/g);
+    for (let i = 0; i < match!.length; i++) {
+      if (!isNaN(parseInt(match![i]!))) {
+        instructions.push(parseInt(match![i]!));
+      } else {
+        instructions.push(match![i]!);
+      }
+    }
+
+    const gridData = InputParser.grid(inputGrid!);
+    const grid = new Grid(gridData);
+
+    let initialPosition: { x: number; y: number; value: string };
+    for (const position of grid.positions()) {
+      if (position.value !== " ") {
+        initialPosition = position;
+        break;
+      }
+    }
+
+    const faces: Set<string> = new Set<string>();
+    const N = isTest ? 4 : 50;
+
+    let MovementOnWrapMappings;
+
+    if (isTest) {
+    }
+
+    // console.log(grid);
+
+    for (const position of grid.positions()) {
+      if (position.value && position.value !== " ") {
+        faces.add(
+          `${Math.floor(position.x / N)}-${Math.floor(position.y / N)}`
+        );
+      }
+    }
+
+    console.log(faces);
+
     return 0;
   }
 }

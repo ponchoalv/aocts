@@ -21,7 +21,9 @@ export class Grid<T> {
   constructor(data: T[][]) {
     this.data = data;
     this.height = data.length;
-    this.width = data[0]?.length ?? 0;
+    this.width = data
+      .map((it: T[]) => it.length)
+      .reduce((prev: number, curr: number) => Math.max(prev, curr));
   }
 
   /**
@@ -126,7 +128,7 @@ export class Grid<T> {
    * Create a copy of the grid
    */
   copy(): Grid<T> {
-    const newData = this.data.map(row => [...row]);
+    const newData = this.data.map((row) => [...row]);
     return new Grid(newData);
   }
 
@@ -134,7 +136,7 @@ export class Grid<T> {
    * Convert to string representation
    */
   toString(): string {
-    return this.data.map(row => row.join('')).join('\n');
+    return this.data.map((row) => row.join("")).join("\n");
   }
 
   /**
@@ -152,30 +154,30 @@ export class Grid<T> {
 export class GridUtils {
   // Cardinal directions (up, right, down, left)
   static readonly DIRECTIONS_4: Direction[] = [
-    { dx: 0, dy: -1, name: 'N' },
-    { dx: 1, dy: 0, name: 'E' },
-    { dx: 0, dy: 1, name: 'S' },
-    { dx: -1, dy: 0, name: 'W' },
+    { dx: 0, dy: -1, name: "N" },
+    { dx: 1, dy: 0, name: "E" },
+    { dx: 0, dy: 1, name: "S" },
+    { dx: -1, dy: 0, name: "W" },
   ];
 
   // All 8 directions including diagonals
   static readonly DIRECTIONS_8: Direction[] = [
-    { dx: 0, dy: -1, name: 'N' },
-    { dx: 1, dy: -1, name: 'NE' },
-    { dx: 1, dy: 0, name: 'E' },
-    { dx: 1, dy: 1, name: 'SE' },
-    { dx: 0, dy: 1, name: 'S' },
-    { dx: -1, dy: 1, name: 'SW' },
-    { dx: -1, dy: 0, name: 'W' },
-    { dx: -1, dy: -1, name: 'NW' },
+    { dx: 0, dy: -1, name: "N" },
+    { dx: 1, dy: -1, name: "NE" },
+    { dx: 1, dy: 0, name: "E" },
+    { dx: 1, dy: 1, name: "SE" },
+    { dx: 0, dy: 1, name: "S" },
+    { dx: -1, dy: 1, name: "SW" },
+    { dx: -1, dy: 0, name: "W" },
+    { dx: -1, dy: -1, name: "NW" },
   ];
 
   /**
    * Create grid from string input
    */
   static fromString(input: string): Grid<string> {
-    const lines = input.trim().split('\n');
-    const data = lines.map(line => [...line]);
+    const lines = input.trim().split("\n");
+    const data = lines.map((line) => [...line]);
     return new Grid(data);
   }
 
@@ -183,8 +185,8 @@ export class GridUtils {
    * Create number grid from string input
    */
   static fromStringNumbers(input: string): Grid<number> {
-    const lines = input.trim().split('\n');
-    const data = lines.map(line => [...line].map(c => parseInt(c, 10)));
+    const lines = input.trim().split("\n");
+    const data = lines.map((line) => [...line].map((c) => parseInt(c, 10)));
     return new Grid(data);
   }
 
@@ -196,7 +198,8 @@ export class GridUtils {
     startX: number,
     startY: number,
     newValue: T,
-    shouldFill: (value: T) => boolean = (value) => value === grid.get(startX, startY)
+    shouldFill: (value: T) => boolean = (value) =>
+      value === grid.get(startX, startY)
   ): void {
     const stack: Point[] = [{ x: startX, y: startY }];
     const visited = new Set<string>();
@@ -204,9 +207,9 @@ export class GridUtils {
     while (stack.length > 0) {
       const { x, y } = stack.pop()!;
       const key = `${x},${y}`;
-      
+
       if (visited.has(key) || !grid.inBounds(x, y)) continue;
-      
+
       const currentValue = grid.get(x, y)!;
       if (!shouldFill(currentValue)) continue;
 
